@@ -8,7 +8,7 @@ export class IngestionJobEntity {
   id: number;
 
   @Column()
-  requestId: string;
+  jobId: string;
 
   @Column('jsonb')
   payload: IngestionPayload;

@@ -26,31 +26,30 @@ export class IngestionService {
     if (document.ingested)
       throw new BadRequestException('Document Already Ingested');
     try {
-      const requestId = uuid();
+      const jobId = uuid();
       const ingestionPayoad: IngestionPayload = {
-        requestId: requestId,
         documentId: documentId,
         s3_path: document.s3Location,
       };
       // const response = await this.httpService.post('', ingestionPayoad);
       const ingestionJob = new IngestionJobEntity();
-      ingestionJob.requestId = requestId;
+      ingestionJob.jobId = jobId;
       ingestionJob.payload = ingestionPayoad;
       ingestionJob.status = IngestionStatus.INPROGRESS;
       await this.ingestionJobRepository.save(ingestionJob);
       await this.documentService.updateDocument(documentId, { ingested: true });
-      return { requestId };
+      return { jobId };
     } catch (e) {
       throw new InternalServerErrorException(e);
     }
   }
 
   async ingestionJobStatus(
-    ingestionRequestId: string,
+    ingestionJobId: string,
   ): Promise<Partial<IngestionJobEntity>> {
-    const { requestId, status } = await this.ingestionJobRepository.findOneBy({
-      requestId: ingestionRequestId,
+    const { jobId, status } = await this.ingestionJobRepository.findOneBy({
+      jobId: ingestionJobId,
     });
-    return { requestId, status };
+    return { jobId, status };
   }
 }

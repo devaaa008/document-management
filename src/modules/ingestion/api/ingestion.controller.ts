@@ -18,7 +18,7 @@ export class IngestionController {
 
   @Get('status')
   @Roles(Role.ADMIN, Role.EDITOR)
-  async getIngestionStatus(@Query('requestId') requestId: string) {
-    return this.ingestionService.ingestionJobStatus(requestId);
+  async getIngestionStatus(@Query('jobId') jobId: string) {
+    return this.ingestionService.ingestionJobStatus(jobId);
   }
 }

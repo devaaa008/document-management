@@ -7,7 +7,9 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { DocumentService } from '../services/document.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -16,6 +18,7 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../user/model/entities/role.enum';
 import { DocumentInDto } from '../model/dtos/document.in.dto.';
 import { RolesGuard } from '../../auth/guards/roles.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('document')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -25,8 +28,12 @@ export class DocumentController {
   @Post()
   @Roles(Role.ADMIN, Role.EDITOR)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  async createDocument(@Body() createDocumentDto: DocumentInDto) {
-    return this.documentService.create(createDocumentDto);
+  @UseInterceptors(FileInterceptor('file'))
+  async createDocument(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createDocumentDto: DocumentInDto,
+  ) {
+    return this.documentService.createAndUpload(createDocumentDto, file);
   }
 
   @Get('documents')
