@@ -1,11 +1,18 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserModule } from './user/user.module';
+import { UserModule } from './modules/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { DocumentModule } from './modules/document/document.module';
 import baseConfig from './config/baseConfig';
+import { ClsMiddleware, ClsModule } from 'nestjs-cls';
 
 @Module({
   imports: [
@@ -25,8 +32,20 @@ import baseConfig from './config/baseConfig';
       load: [baseConfig],
       isGlobal: true,
     }),
+    ClsModule.forRoot({
+      global: true,
+      middleware: { mount: false },
+    }),
+    DocumentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(ClsMiddleware).forRoutes('*', {
+      path: '*/document/:splat*/*',
+      method: RequestMethod.ALL,
+    });
+  }
+}

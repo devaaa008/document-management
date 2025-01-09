@@ -7,6 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TokenBlacklistService } from '../services/token.blacklist.service';
+import { ClsService } from 'nestjs-cls';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -14,13 +15,16 @@ export class JwtAuthGuard implements CanActivate {
     private configService: ConfigService,
     private jwtService: JwtService,
     private tokenBlacklistService: TokenBlacklistService,
+    private cls: ClsService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    const tokenBlackListed =
+      await this.tokenBlacklistService.isBlacklisted(token);
 
-    if (!token || this.tokenBlacklistService.isBlacklisted(token)) {
+    if (!token || tokenBlackListed) {
       throw new UnauthorizedException();
     }
     try {
@@ -29,7 +33,9 @@ export class JwtAuthGuard implements CanActivate {
       });
 
       request['user'] = payload;
-    } catch {
+      this.cls.set('user_id', payload.sub);
+      this.cls.set('token', token);
+    } catch (e) {
       throw new UnauthorizedException();
     }
     return true;
