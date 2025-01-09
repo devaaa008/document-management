@@ -11,6 +11,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DocumentModule } from './modules/document/document.module';
 import baseConfig from './config/baseConfig';
 import { ClsMiddleware, ClsModule } from 'nestjs-cls';
+import { IngestionModule } from './modules/ingestion/ingestion.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ClsMiddleware, ClsModule } from 'nestjs-cls';
       middleware: { mount: false },
     }),
     DocumentModule,
+    IngestionModule,
   ],
   controllers: [],
   providers: [],
