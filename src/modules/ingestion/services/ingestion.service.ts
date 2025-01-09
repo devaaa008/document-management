@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { DocumentService } from '../../document/services/document.service';
 import { v4 as uuid } from 'uuid';
@@ -19,19 +23,26 @@ export class IngestionService {
 
   async ingestDocument(documentId: number) {
     const document = await this.documentService.getDocumentById(documentId);
-    const requestId = uuid();
-    const ingestionPayoad: IngestionPayload = {
-      requestId: requestId,
-      documentId: documentId,
-      s3_path: document.s3Location,
-    };
-    // const response = await this.httpService.post('', ingestionPayoad);
-    const ingestionJob = new IngestionJobEntity();
-    ingestionJob.requestId = requestId;
-    ingestionJob.payload = ingestionPayoad;
-    ingestionJob.status = IngestionStatus.INPROGRESS;
-    await this.ingestionJobRepository.save(ingestionJob);
-    return { requestId };
+    if (document.ingested)
+      throw new BadRequestException('Document Already Ingested');
+    try {
+      const requestId = uuid();
+      const ingestionPayoad: IngestionPayload = {
+        requestId: requestId,
+        documentId: documentId,
+        s3_path: document.s3Location,
+      };
+      // const response = await this.httpService.post('', ingestionPayoad);
+      const ingestionJob = new IngestionJobEntity();
+      ingestionJob.requestId = requestId;
+      ingestionJob.payload = ingestionPayoad;
+      ingestionJob.status = IngestionStatus.INPROGRESS;
+      await this.ingestionJobRepository.save(ingestionJob);
+      await this.documentService.updateDocument(documentId, { ingested: true });
+      return { requestId };
+    } catch (e) {
+      throw new InternalServerErrorException(e);
+    }
   }
 
   async ingestionJobStatus(

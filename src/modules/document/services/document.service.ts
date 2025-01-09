@@ -26,6 +26,22 @@ export class DocumentService {
     return this.documentRepository.findOneBy({ id });
   }
 
+  async updateDocument(
+    id: number,
+    documentToUpdate: Partial<Document>,
+  ): Promise<Document> {
+    const document = await this.getDocumentById(id);
+    Object.assign(document, {
+      ...document,
+      ...documentToUpdate,
+    });
+    return this.documentRepository.save(document);
+  }
+
+  async deleteDocument(id: number) {
+    return this.documentRepository.delete(id);
+  }
+
   private getDocumentData(documentDto: DocumentInDto): Document {
     const document = new Document();
     document.title = documentDto.title;
@@ -33,20 +49,7 @@ export class DocumentService {
     document.s3Location = 'temp_location';
     document.createdBy = this.requestData.getUserId();
     document.createdOn = new Date();
+    document.ingested = false;
     return document;
-  }
-
-  async updateDocument(id: number, documentDto: DocumentInDto) {
-    const document = await this.getDocumentById(id);
-    Object.assign(document, {
-      ...document,
-      title: documentDto.title,
-      description: documentDto.description,
-    });
-    return this.documentRepository.save(document);
-  }
-
-  async deleteDocument(id: number) {
-    return this.documentRepository.delete(id);
   }
 }

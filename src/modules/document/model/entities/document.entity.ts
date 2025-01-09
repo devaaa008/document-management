@@ -16,6 +16,9 @@ export class Document {
   @Column()
   s3Location: string;
 
+  @Column()
+  ingested: boolean;
+
   @ManyToOne(() => User, (user) => user.id)
   createdBy: number;
 

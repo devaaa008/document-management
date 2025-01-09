@@ -41,7 +41,10 @@ export class DocumentController {
     @Query('id') id: number,
     @Body() updateDocumentDto: DocumentInDto,
   ) {
-    return this.documentService.updateDocument(id, updateDocumentDto);
+    return this.documentService.updateDocument(
+      id,
+      updateDocumentDto as Partial<Document>,
+    );
   }
 
   @Delete(':id')
