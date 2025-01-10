@@ -15,8 +15,8 @@ import { S3Service } from '../../lib/s3/s3.service';
 @Module({
   controllers: [IngestionController],
   providers: [
-    IngestionService,
-    DocumentService,
+    { provide: IngestionService.name, useClass: IngestionService },
+    { provide: DocumentService.name, useClass: DocumentService },
     RequestData,
     JwtService,
     TokenBlacklistService,

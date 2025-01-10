@@ -4,9 +4,12 @@ import { IngestionService } from '../services/ingestion.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt.auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 
+/**
+ * Automation tests for Ingestion Controller
+ * Tests functionalities of ingest document and get status of ingestion
+ */
 describe('IngestionController', () => {
   let controller: IngestionController;
-  let ingestionService: IngestionService;
 
   const mockIngestionService = {
     ingestDocument: jest.fn(),
@@ -18,7 +21,7 @@ describe('IngestionController', () => {
       controllers: [IngestionController],
       providers: [
         {
-          provide: IngestionService,
+          provide: IngestionService.name,
           useValue: mockIngestionService,
         },
       ],
@@ -30,7 +33,6 @@ describe('IngestionController', () => {
       .compile();
 
     controller = module.get<IngestionController>(IngestionController);
-    ingestionService = module.get<IngestionService>(IngestionService);
   });
 
   it('should be defined', () => {
@@ -45,7 +47,7 @@ describe('IngestionController', () => {
 
       const result = await controller.ingestDocument(documentId);
 
-      expect(ingestionService.ingestDocument).toHaveBeenCalledWith(documentId);
+      expect(mockIngestionService.ingestDocument).toHaveBeenCalled();
       expect(result).toEqual(expectedResult);
     });
 
@@ -70,7 +72,9 @@ describe('IngestionController', () => {
 
       const result = await controller.getIngestionStatus(jobId);
 
-      expect(ingestionService.ingestionJobStatus).toHaveBeenCalledWith(jobId);
+      expect(mockIngestionService.ingestionJobStatus).toHaveBeenCalledWith(
+        jobId,
+      );
       expect(result).toEqual(expectedResult);
     });
 

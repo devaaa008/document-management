@@ -15,4 +15,7 @@ export default () => ({
   swagger: {
     endpoint: 'swagger',
   },
+  ingestion: {
+    url: process.env.INGESTION_URL,
+  },
 });

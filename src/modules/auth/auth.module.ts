@@ -14,9 +14,9 @@ import { BlackListedToken } from './model/entities/black.listed.token.entity';
 
 @Module({
   providers: [
-    AuthService,
+    { provide: AuthService.name, useClass: AuthService },
     PasswordHashService,
-    UserService,
+    { provide: UserService.name, useClass: UserService },
     LocalStrategy,
     ConfigService,
     TokenBlacklistService,

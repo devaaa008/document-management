@@ -13,7 +13,7 @@ import { BlackListedToken } from '../auth/model/entities/black.listed.token.enti
 @Module({
   controllers: [UserController],
   providers: [
-    UserService,
+    { provide: UserService.name, useClass: UserService },
     UserControllerDtoConverter,
     PasswordHashService,
     JwtService,

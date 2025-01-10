@@ -6,6 +6,10 @@ import { RolesGuard } from '../../auth/guards/roles.guard';
 import { DocumentInDto } from '../model/dtos/document.in.dto.';
 import { InternalServerErrorException } from '@nestjs/common';
 
+/**
+ * Automation tests for Document Controller
+ * Tests functionalities of document create,update and delete operations
+ */
 describe('DocumentController', () => {
   let controller: DocumentController;
 
@@ -21,7 +25,7 @@ describe('DocumentController', () => {
       controllers: [DocumentController],
       providers: [
         {
-          provide: DocumentService,
+          provide: DocumentService.name,
           useValue: mockDocumentService,
         },
       ],
@@ -56,7 +60,7 @@ describe('DocumentController', () => {
 
       mockDocumentService.createAndUpload.mockResolvedValue(expectedResponse);
 
-      const result = await controller.createDocument(createDocumentDto, file);
+      const result = await controller.createDocument(file, createDocumentDto);
 
       expect(result).toEqual(expectedResponse);
       expect(mockDocumentService.createAndUpload).toHaveBeenCalledWith(
@@ -77,7 +81,7 @@ describe('DocumentController', () => {
       );
 
       await expect(
-        controller.createDocument(createDocumentDto, file),
+        controller.createDocument(file, createDocumentDto),
       ).rejects.toThrowError(InternalServerErrorException);
     });
   });

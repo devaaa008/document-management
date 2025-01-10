@@ -15,22 +15,23 @@ import { TokenBlacklistService } from '../services/token.blacklist.service';
 import { BlackListedToken } from '../model/entities/black.listed.token.entity';
 import { UnauthorizedException } from '@nestjs/common';
 
+/**
+ * Automation tests for Auth Controller
+ * Tests functionalities of user login,logout
+ */
 describe('AuthController', () => {
   let controller: AuthController;
-  let authService: AuthService;
-  let userRepository: Repository<User>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        // PassportModule.register(),
         JwtModule.register({
           secret: 'sample-key',
         }),
       ],
       controllers: [AuthController],
       providers: [
-        AuthService,
+        { provide: AuthService.name, useClass: AuthService },
         LocalStrategy,
         {
           provide: getRepositoryToken(User),
@@ -40,7 +41,7 @@ describe('AuthController', () => {
           provide: getRepositoryToken(BlackListedToken),
           useClass: Repository,
         },
-        UserService,
+        { provide: UserService.name, useClass: UserService },
         PasswordHashService,
         ConfigService,
         TokenBlacklistService,
@@ -48,8 +49,6 @@ describe('AuthController', () => {
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
-    authService = module.get<AuthService>(AuthService);
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
   describe('Login', () => {
     it('should login successfully', async () => {

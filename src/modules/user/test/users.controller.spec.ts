@@ -14,21 +14,22 @@ import { PasswordHashService } from '../../auth/services/password.hash.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { TokenBlacklistService } from '../../auth/services/token.blacklist.service';
-import { ClsService } from 'nestjs-cls';
 import { AppModule } from '../../../app.module';
 import { BlackListedToken } from '../../auth/model/entities/black.listed.token.entity';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
+/**
+ * Automation tests for User Controller
+ * Tests functionalities of user register,get all users
+ */
 describe('UserController', () => {
   let controller: UserController;
-  let userService: UserService;
-  let userRepository: Repository<User>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
       providers: [
-        UserService,
+        { provide: UserService.name, useClass: UserService },
         UserControllerDtoConverter,
         {
           provide: getRepositoryToken(User),
@@ -49,8 +50,6 @@ describe('UserController', () => {
     }).compile();
 
     controller = module.get<UserController>(UserController);
-    userService = module.get<UserService>(UserService);
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
   describe('create user', () => {
     it('should create a user', async () => {
