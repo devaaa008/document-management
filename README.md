@@ -55,6 +55,11 @@ $ npm run test
 # test coverage
 $ npm run test:cov
 ```
+# Api Documentation
+```bash
+# curl
+ http://localhost:3000/swagger
+```
 
 ## Deployment
 Set the configurations mentioned in the src/confg/baseConfig.ts file\
